@@ -1,3 +1,7 @@
+![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+
 # Table Checkbox Row Color
 
 This is a fork of the [Table Checkbox Renderer](https://github.com/dannns/obsidian-table-checkbox-renderer) plugin by Daniel Aguerrevere. It adds row color highlighting and optional strikethrough support for checked table rows in Reading Mode.
