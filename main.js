@@ -20,7 +20,9 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/main.ts
 var main_exports = {};
 __export(main_exports, {
-  default: () => TableCheckboxRendererPlugin
+  DEFAULT_SETTINGS: () => DEFAULT_SETTINGS,
+  ObsidianTableCheckboxRowColorSettingTab: () => ObsidianTableCheckboxRowColorSettingTab,
+  default: () => ObsidianTableCheckboxRowColorPlugin
 });
 module.exports = __toCommonJS(main_exports);
 var import_obsidian2 = require("obsidian");
@@ -50,6 +52,20 @@ async function getSourceLine(plugin, file, idx) {
 }
 
 // src/dom-helpers.ts
+var CHECKED_ROW_CLASS = "obsidian-table-checkbox-row-color-row-checked";
+var CHECKED_CELL_CLASS = "obsidian-table-checkbox-row-color-cell-checked";
+function updateRowHighlight(target) {
+  if (typeof target?.closest !== "function") return;
+  const row = target.closest("tr");
+  if (!row || !row.classList) return;
+  const hasCheckedCheckbox = Array.from(row.querySelectorAll("input.task-list-item-checkbox")).some((checkbox) => checkbox.checked);
+  row.classList.toggle(CHECKED_ROW_CLASS, hasCheckedCheckbox);
+  Array.from(row.children).forEach((child) => {
+    if (child instanceof HTMLElement && (child.tagName === "TD" || child.tagName === "TH")) {
+      child.classList.toggle(CHECKED_CELL_CLASS, hasCheckedCheckbox);
+    }
+  });
+}
 async function handleCheckboxChange({ box, plugin, file, lineNum, idx }) {
   const vault = plugin?.app?.vault;
   if (!vault || typeof vault.process !== "function") return;
@@ -65,6 +81,7 @@ async function handleCheckboxChange({ box, plugin, file, lineNum, idx }) {
     box.checked = newState === "[x]";
     return lines.join("\n");
   });
+  updateRowHighlight(box);
 }
 
 // src/render-cell-checkboxes.ts
@@ -149,8 +166,22 @@ function renderCellCheckboxesPure(text) {
 }
 
 // src/main.ts
-var TableCheckboxRendererPlugin = class extends import_obsidian2.Plugin {
+var STYLE_ELEMENT_ID = "obsidian-table-checkbox-row-color-style";
+var DEFAULT_HIGHLIGHT_COLOR = "#fff4b8";
+var DEFAULT_SETTINGS = {
+  highlightColor: DEFAULT_HIGHLIGHT_COLOR,
+  strikeThroughCheckedRows: false
+};
+var ObsidianTableCheckboxRowColorPlugin = class extends import_obsidian2.Plugin {
+  constructor() {
+    super(...arguments);
+    this.settings = DEFAULT_SETTINGS;
+    this.styleElement = null;
+  }
   async onload() {
+    await this.loadSettings();
+    this.ensureRowHighlightStyle();
+    this.addSettingTab(new ObsidianTableCheckboxRowColorSettingTab(this.app, this));
     this.registerMarkdownPostProcessor(async (el, ctx) => {
       el.querySelectorAll("table").forEach((table) => {
         let dataRowIdx = 0;
@@ -177,9 +208,90 @@ var TableCheckboxRendererPlugin = class extends import_obsidian2.Plugin {
               idx
             });
           });
+          updateRowHighlight(row);
         });
       });
     });
   }
+  onunload() {
+    this.styleElement?.remove();
+    this.styleElement = null;
+  }
+  async loadSettings() {
+    const loadedData = await this.loadData();
+    this.settings = {
+      ...DEFAULT_SETTINGS,
+      ...loadedData,
+      highlightColor: normalizeHexColor(loadedData?.highlightColor)
+    };
+  }
+  async saveSettings() {
+    await this.saveData(this.settings);
+    this.refreshRowHighlightStyle();
+  }
+  ensureRowHighlightStyle() {
+    const existingStyle = document.getElementById(STYLE_ELEMENT_ID);
+    if (existingStyle?.tagName === "STYLE") {
+      this.styleElement = existingStyle;
+    } else {
+      const styleElement = document.createElement("style");
+      styleElement.id = STYLE_ELEMENT_ID;
+      document.head.appendChild(styleElement);
+      this.styleElement = styleElement;
+    }
+    this.refreshRowHighlightStyle();
+  }
+  refreshRowHighlightStyle() {
+    if (!this.styleElement) return;
+    this.styleElement.textContent = this.getRowHighlightCss();
+  }
+  getRowHighlightCss() {
+    return `
+tr.${CHECKED_ROW_CLASS},
+tr.${CHECKED_ROW_CLASS} > td,
+tr.${CHECKED_ROW_CLASS} > th,
+td.${CHECKED_CELL_CLASS},
+th.${CHECKED_CELL_CLASS} {
+  background-color: color-mix(in srgb, ${this.settings.highlightColor} 18%, transparent) !important;
+}
+
+tr.${CHECKED_ROW_CLASS} > td,
+tr.${CHECKED_ROW_CLASS} > th {
+  transition: background-color 140ms ease, color 140ms ease, text-decoration-color 140ms ease;
+  text-decoration: ${this.settings.strikeThroughCheckedRows ? "line-through" : "none"};
+  text-decoration-thickness: 1.5px;
+}
+`;
+  }
 };
+var ObsidianTableCheckboxRowColorSettingTab = class extends import_obsidian2.PluginSettingTab {
+  constructor(app, plugin) {
+    super(app, plugin);
+    this.plugin = plugin;
+  }
+  display() {
+    const { containerEl } = this;
+    containerEl.empty();
+    new import_obsidian2.Setting(containerEl).setName("Row highlight color").setDesc("Choose the color used to tint checked table rows in Reading Mode.").addColorPicker((component) => {
+      component.setValue(this.plugin.settings.highlightColor).onChange(async (value) => {
+        this.plugin.settings.highlightColor = normalizeHexColor(value);
+        await this.plugin.saveSettings();
+      });
+    });
+    new import_obsidian2.Setting(containerEl).setName("Strike through checked rows").setDesc("Apply a strikethrough to the row text when at least one checkbox in that row is checked.").addToggle((component) => {
+      component.setValue(this.plugin.settings.strikeThroughCheckedRows).onChange(async (value) => {
+        this.plugin.settings.strikeThroughCheckedRows = value;
+        await this.plugin.saveSettings();
+      });
+    });
+  }
+};
+function normalizeHexColor(value) {
+  return typeof value === "string" && /^#[0-9a-fA-F]{6}$/.test(value) ? value : DEFAULT_HIGHLIGHT_COLOR;
+}
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  DEFAULT_SETTINGS,
+  ObsidianTableCheckboxRowColorSettingTab
+});
 //# sourceMappingURL=main.js.map
