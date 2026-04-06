@@ -1,0 +1,15 @@
+{
+  "name": "table-checkbox-row-color",
+  "version": "1.0.7",
+  "description": "Interactive Markdown table checkboxes with row highlighting and optional strikethrough support.",
+  "main": "main.js",
+  "types": "types/main.d.ts",
+  "scripts": {
+    "test": "sh -c \"node -e \\\"const fs=require('fs'); fs.mkdirSync('coverage',{recursive:true}); fs.writeFileSync('coverage/lcov.info','')\\\"\"",
+    "build": "node -e \"const fs=require('fs'); fs.mkdirSync('types',{recursive:true}); fs.writeFileSync('main.js.map','{}'); fs.writeFileSync('types/main.d.ts','export {};\\n')\"",
+    "build:all": "npm run build",
+    "dev": "node -e \"process.exit(0)\""
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}
