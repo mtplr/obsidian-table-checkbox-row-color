@@ -1,8 +1,8 @@
 {
-    "id": "obsidian-table-checkbox-row-color",
+    "id": "table-checkbox-row-color",
     "name": "Table Checkbox Row Color",
     "version": "1.0.7",
-    "description": "Beyond simple checkbox functionality, this plugin highlights entire table rows when one or more checkboxes in that row are checked, with customizable highlight colors via Obsidian settings. You can optionally enable strikethrough for checked rows. The plugin supports multiple checkboxes per cell and works with any table structure, including complex layouts, making it a robust solution for task tracking, study notes, or project management within tables.",
+    "description": "Interactive Markdown table checkboxes with row highlighting and optional strikethrough support.",
     "author": "Matteo Paolieri",
     "authorUrl": "https://github.com/mtplr",
     "minAppVersion": "1.8.0",

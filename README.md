@@ -1,10 +1,10 @@
 # Table Checkbox Row Color
 
-This is a fork of the [Obsidian](https://obsidian.md/) plugin "[Table Checkbox Renderer](https://github.com/dannns/obsidian-table-checkbox-renderer)" by Daniel Aguerrevere. It adds row color highlighting and optional strikethrough support for checked table rows in Reading Mode.
+This is a fork of the [Table Checkbox Renderer](https://github.com/dannns/obsidian-table-checkbox-renderer) plugin by Daniel Aguerrevere. It adds row color highlighting and optional strikethrough support for checked table rows in Reading Mode.
 
 ## Overview
 
-Beyond simple checkbox functionality, this plugin highlights entire table rows when one or more checkboxes in that row are checked, with customizable highlight colors via Obsidian settings. You can optionally enable strikethrough for checked rows. The plugin supports multiple checkboxes per cell and works with any table structure, including complex layouts, making it a robust solution for task tracking, study notes, or project management within tables.
+Interactive Markdown table checkboxes with row highlighting and optional strikethrough support.
 
 ## Demo
 
